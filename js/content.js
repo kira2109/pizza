@@ -1,8 +1,3 @@
-/* jshint esversion: 6 */
-
-document.body.children[0].insertAdjacentHTML('afterEnd', '<main>');
-let main = document.body.children[1];
-
 let items = [{ picture: '/image/takkino-600x600.jpg', name: 'ТАККИНО', description: 'Индейка, кисло-сладкий соус, моцарелла, соус сливки', weight: '420 г.', price: '140.00 грн.' },
 { picture: '/image/salmone-600x600.jpg', name: 'САЛЬМОНЕ', description: 'Лосось, оливки, моцарелла, соус сливки', weight: '420 г.', price: '170.00 грн.' },
 { picture: '/image/diablo-600x600.jpg', name: 'ДИАБЛО', description: 'Ветчина, телятина, салями, шампиньоны, моцарелла, лук, перец Пири-Пири, соус Табаско, томатный соус', weight: '595 г.', price: '140.00 грн.' },
@@ -23,15 +18,72 @@ let items = [{ picture: '/image/takkino-600x600.jpg', name: 'ТАККИНО', de
 { picture: '/image/margarita-600x600.jpg', name: 'МАРГАРИТА', description: 'Моцарелла, помидоры, томатный соус', weight: '435 г.', price: '80.00 грн.' }];
 
 
-function createDiv(className) {
-    let div = document.createElement('div');
-    div.classList.add(className);
-    return div;
-}
+document.body.children[0].insertAdjacentHTML('afterEnd', '<main>');
+let main = document.body.children[1];
+main.classList.add('container');
+
+
+//switch options creation - table or list:
+let tableInput = createInput('radio');
+main.appendChild(tableInput);
+let tableId = 'table';
+tableInput.id = tableId;
+tableInput.checked = true;
+
+let listInput = createInput('radio');
+main.appendChild(listInput);
+let listId = 'list';
+listInput.id = listId;
+
+let optionControls = createDiv('controls');
+main.appendChild(optionControls);
+
+let tableLabel = document.createElement('label');
+optionControls.appendChild(tableLabel).setAttribute('for', tableId);
+
+let tableLabel_name = document.createTextNode('Таблица');
+tableLabel.appendChild(tableLabel_name);
+
+let listLabel = document.createElement('label');
+optionControls.appendChild(listLabel).setAttribute('for', listId);
+let listLabel_name = document.createTextNode('Список');
+listLabel.appendChild(listLabel_name);
+
+let optionsDiv = createDiv('options');
+main.appendChild(optionsDiv);
+
+let tableOption = createDiv('table');
+optionsDiv.appendChild(tableOption);
+
+let listOption = createDiv('list');
+optionsDiv.appendChild(listOption);
+listOption.hidden = true;
+
+
+
+tableInput.onclick = function() {
+    tableInput.checked = true;
+    listInput.checked = false;
+
+    tableOption.hidden = false;
+    listOption.hidden = true;
+};
+
+listInput.onclick = function() {
+    tableInput.checked = false;
+    listInput.checked = true;
+
+    listOption.hidden = false;
+    tableOption.hidden = true;
+};
+
+
+// table creation:
+// table pages creation:
 
 function createPizzaDiv(item) {
     let itemWrap = createDiv('product-layout');
-    main.appendChild(itemWrap);
+    tableOption.appendChild(itemWrap);
 
     let imageDiv = createDiv('image');
     itemWrap.appendChild(imageDiv);
@@ -52,15 +104,15 @@ function createPizzaDiv(item) {
     let description_content = document.createTextNode(item.description);
     description.appendChild(description_content);
 
-    let weightDiv = createDiv('weight');
-    itemWrap.appendChild(weightDiv);
-    let weight_content = document.createTextNode(item.weight);
-    weightDiv.appendChild(weight_content);
-
     let priceDiv = createDiv('price');
-    itemWrap.appendChild(priceDiv);
+    descDiv.appendChild(priceDiv);
     let price_content = document.createTextNode(item.price);
     priceDiv.appendChild(price_content);
+
+    let weightDiv = createDiv('weight');
+    descDiv.appendChild(weightDiv);
+    let weight_content = document.createTextNode(item.weight);
+    weightDiv.appendChild(weight_content);
 }
 
 
@@ -68,6 +120,48 @@ for (let i = 0; i < items.length; i++) {
     createPizzaDiv(items[i]);
 }
 
+//list creation:
+let listWrapper = document.createElement('ul');
+listOption.appendChild(listWrapper).classList.add('pizza_list');
 
 
+function createPizzaLi(item) {
+    let pizzaListItem = createLi();
+    listWrapper.appendChild(pizzaListItem);
 
+    let nameSpan = document.createElement('span');
+    let span_content = document.createTextNode(item.name);
+    nameSpan.appendChild(span_content);
+
+    let descriptionSpan = document.createElement('span');
+    let descriptionSpan_content = document.createTextNode(', ' + item.weight + ', ' + item.price);
+    descriptionSpan.appendChild(descriptionSpan_content);
+
+    pizzaListItem.appendChild(nameSpan).classList.add('name');
+    pizzaListItem.appendChild(descriptionSpan).classList.add('description');
+}
+
+
+for (let i = 0; i < items.length; i++) {
+    createPizzaLi(items[i]);
+}
+
+
+//secondary functions:
+
+function createDiv(className) {
+    let div = document.createElement('div');
+    div.classList.add(className);
+    return div;
+}
+
+function createLi() {
+    let li = document.createElement('li');
+    return li;
+}
+
+function createInput(attrName) {
+    let input = document.createElement('input');
+    input.setAttribute('type', attrName);
+    return input;
+}
