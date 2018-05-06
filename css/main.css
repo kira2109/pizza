@@ -140,7 +140,7 @@ main {
     color: #fff;
 }
 
-.product-layout {
+.pizza-layout {
     display: inline-block;
     width: 30%;
     position: relative;
@@ -251,12 +251,28 @@ footer .address {
     letter-spacing: 0.04em;
 }
 
+/*new task*/
+
+/*.ingredient {
+    display: block;
+}*/
+
+input[type='button'] {
+    width: 22px;
+    height: 12px;
+    margin-left: 25px;
+    border: none;
+    padding: 0;
+    background: #FF1C1C;
+    color: #fff;
+}
+
 @media screen and (min-width: 992px) and (max-width: 1199px) {
     .container {
         width: 970px;
     }
 
-    .product-layout {
+    .pizza-layout {
         width: 47%;
     }
 }
@@ -266,7 +282,7 @@ footer .address {
         width: 750px;
     }
 
-    .product-layout {
+    .pizza-layout {
         width: 100%;
     }
 }
