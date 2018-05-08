@@ -65,7 +65,6 @@ for (let i = 0; i < pizzas.length; i++) {
 }
 
 
-
 //list creation:
 let listWrapper = document.createElement('ul');
 listOption.appendChild(listWrapper).classList.add('pizza_list');
@@ -99,7 +98,9 @@ function createPizzaDiv(pizza) {
         let ingredientWrapperDiv = createDiv('ingredientWrapper');
 
         let labelIngredient = document.createElement('label');
-
+        labelIngredient.setAttribute('name', pizza.ingredientsList[j]);
+        labelIngredient.dataset.click = 1;
+        
         let ingredientsListContent = document.createTextNode(pizza.ingredientsList[j]);
         labelIngredient.appendChild(ingredientsListContent);
         ingredientWrapperDiv.appendChild(labelIngredient);
@@ -113,9 +114,7 @@ function createPizzaDiv(pizza) {
 
         ingredientWrapperDiv.appendChild(plusInput);
 
-        plusInput.addEventListener('click', function (e) {
-            addIngredient(e.currentTarget.dataset.ingredient, e.currentTarget.dataset.pizza);
-        });
+        plusInput.addEventListener('click', addIngredient);
 
 
         let minusInput = createInput('button');
@@ -125,19 +124,20 @@ function createPizzaDiv(pizza) {
 
         ingredientWrapperDiv.appendChild(minusInput);
 
-        minusInput.addEventListener('click', function (e) {
-            removeIngredient(e.currentTarget.dataset.ingredient, e.currentTarget.dataset.pizza);
-        });
+        minusInput.addEventListener('click', removeIngredient);
 
         ingredients.appendChild(ingredientWrapperDiv);
     }
-
-
 
     let priceDiv = createDiv('price');
     descDiv.appendChild(priceDiv);
     let priceContent = document.createTextNode(pizza.price);
     priceDiv.appendChild(priceContent);
+
+    let priceUnitSpan = document.createElement('span');
+    let priceUnitSpanContent = document.createTextNode(' грн.');
+    priceUnitSpan.appendChild(priceUnitSpanContent);
+    priceDiv.appendChild(priceUnitSpan);
 
     let weightDiv = createDiv('weight');
     descDiv.appendChild(weightDiv);
@@ -150,7 +150,6 @@ function createPizzaDiv(pizza) {
     weightDiv.appendChild(weightUnitSpan);
 
     return pizzaDiv;
-
 }
 
 function createPizzaLi(pizza) {
@@ -162,51 +161,67 @@ function createPizzaLi(pizza) {
     nameSpan.appendChild(span_content);
 
     let ingredientsListSpan = document.createElement('span');
-    let ingredientsListSpan_content = document.createTextNode(', ' + pizza.weight + ', ' + pizza.price);
+    let ingredientsListSpan_content = document.createTextNode(', ' + pizza.weight + ' г.' + ', ' + pizza.price + ' грн.');
     ingredientsListSpan.appendChild(ingredientsListSpan_content);
 
     pizzaListpizza.appendChild(nameSpan).classList.add('name');
     pizzaListpizza.appendChild(ingredientsListSpan).classList.add('ingredientsList');
 }
 
-//function findEventTarget
 
-function addIngredient(ingredientName, pizzaName) {
+function addIngredient(e) {
+    let eventParent = e.path[1];
+    let targetIngredient = eventParent.getElementsByTagName('label')[0];
+    let clickCount = targetIngredient.dataset.click;
+    clickCount += 1;
 
-    let foundIngredient = ingredientsData.find(ingredient => ingredient.ingredientName === ingredientName);
-    let foundPizza = pizzaWrappers.find(pizza => pizza.name === pizzaName);
+    let ingredientName = e.currentTarget.dataset.ingredient;
+    let pizzaName = e.currentTarget.dataset.pizza;
 
-    let weightDiv = foundPizza.wrapper.querySelector('.weight');
-    let weightValue = weightDiv.firstChild.data;
-
-
-    let newWeightValue = +weightValue + foundIngredient.ingredientWeight;
-    let newWeightElement = document.createTextNode(newWeightValue);
-    weightDiv.replaceChild(newWeightElement, weightDiv.firstChild);
-
-    let priceDiv = foundPizza.wrapper.querySelector('.price');
-    let priceValue = priceDiv.firstChild.data;
-
-    let newPriceValue = +priceValue + foundIngredient.ingredientPrice;
-    let newPriceElement = document.createTextNode(newPriceValue);
-    priceDiv.replaceChild(newPriceElement, priceDiv.firstChild);
+    updatePizza(ingredientName, pizzaName, clickCount, function (currentValue, ingredientValue) {
+        return currentValue + ingredientValue;
+    });
+    
 }
 
-function removeIngredient(ingredientName, pizzaName) {
+function removeIngredient(e) {
+    let eventParent = e.path[1];
+    let targetIngredient = eventParent.getElementsByTagName('label')[0];
+    let clickCount = targetIngredient.dataset.click;
+    clickCount -= 1;
+
+    if (clickCount < 0) {
+        return;
+    }
+
+    let ingredientName = e.currentTarget.dataset.ingredient;
+    let pizzaName = e.currentTarget.dataset.pizza;
+
+    updatePizza(ingredientName, pizzaName, clickCount, function (currentValue, ingredientValue) {
+        return currentValue - ingredientValue;
+    });
+}
+
+
+function updatePizza(ingredientName, pizzaName, clickCount, changeFunc) {
     let foundIngredient = ingredientsData.find(ingredient => ingredient.ingredientName === ingredientName);
     let foundPizza = pizzaWrappers.find(pizza => pizza.name === pizzaName);
+
+    let targetSelector = 'label[name=' + ingredientName +']';
+    let targetIngredient = foundPizza.wrapper.querySelector(targetSelector);
+    targetIngredient.dataset.click = clickCount;
 
     let weightDiv = foundPizza.wrapper.querySelector('.weight');
     let weightValue = weightDiv.firstChild.data;
 
-    let newWeightValue = +weightValue - foundIngredient.ingredientWeight;
+    let newWeightValue = changeFunc(+weightValue, foundIngredient.ingredientWeight);
     let newWeightElement = document.createTextNode(newWeightValue);
     weightDiv.replaceChild(newWeightElement, weightDiv.firstChild);
 
     let priceDiv = foundPizza.wrapper.querySelector('.price');
     let priceValue = priceDiv.firstChild.data;
 
-    let newPriceValue = +priceValue - foundIngredient.ingredientPrice;
+    let newPriceValue = changeFunc(+priceValue, foundIngredient.ingredientPrice);
     let newPriceElement = document.createTextNode(newPriceValue);
     priceDiv.replaceChild(newPriceElement, priceDiv.firstChild);
 }

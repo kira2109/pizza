@@ -160,6 +160,7 @@ main {
 
 .desc {
     width: 100%;
+    min-height: 230px;
     padding: 8px 10px 0;
     border: solid 1px rgba(0, 0, 0, .1);
     border-top: none !important;
@@ -187,15 +188,18 @@ main {
     line-height: 1.0em;
     font-weight: 500;
     font-size: 1.3em;
-    float: left;
+    position: absolute;
+    bottom: -5px;
+    right: 15px;
 }
 
 .desc .weight {
     margin: 2px 0 0;
     font-weight: 500;
     line-height: 1.5em;
-    font-size: 1.0em;
-    float: right;
+    font-size: 1.3em;
+    position: absolute;
+    bottom: 5px;
 }
 
 .pizza_list {
@@ -253,9 +257,7 @@ footer .address {
 
 /*new task*/
 
-/*.ingredient {
-    display: block;
-}*/
+
 
 input[type='button'] {
     width: 22px;
