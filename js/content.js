@@ -155,17 +155,17 @@ function openbasket() {
         productTable = '';
 
     if (basketData !== null) {
-        productTable = '<table class="shopping_list"><tr><th>Наименование</th><th>Цена</th><th>Кол-во</th></tr>';
+        productTable = '<table class="shopping_list"><tr><th>Наименование</th><th>Цена</th><th colspan = "2">Кол-во</th></tr>';
         for (let product in basketData) {
             productTable += '<tr>';
             for (let i = 0; i < basketData[product].length; i++) {
                 productTable += '<td>' + basketData[product][i] + '</td>';
 
             }
-            productTable += '<td><input type = "button" value = "+" class = "addProduct" data-id="' + product + '"></td><td><input type = "button" value = "-" class = "removeProduct" data-id="' + product + '"></td>';
+            productTable += '<td><input type = "button" value = "+" class = "addProduct" data-id="' + product + '"><input type = "button" value = "-" class = "removeProduct" data-id="' + product + '"></td>';
             productTable += '</tr>';
         }
-        productTable += '<tr><td>Итого:</td><td colspan = "4">' + getPriceOrder() + ' грн.</td></tr>';
+        productTable += '<tr><td>Итого:</td><td colspan = "3">' + getPriceOrder() + ' грн.</td></tr>';
         productTable += '</table>';
         orderInfoDiv.innerHTML = productTable;
         let addbuttons = orderInfoDiv.querySelectorAll('.addProduct');

@@ -9,6 +9,8 @@ html {
 }
 
 body {
+    position:relative;
+    min-height: 100vh;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
     line-height: 1.4;
@@ -116,6 +118,7 @@ header .left_column .social .skype:hover {background-position: -3px -74px;}
 
 main {
     color: #fff;
+    padding-bottom: 12vh;
 }
 
 .firstRow {
@@ -227,19 +230,17 @@ main {
 }
 
 footer {
+    position: absolute;
+    bottom: 0;
+    width:100%;
+    max-height: 17vh;
     padding: 10px 0 8px;
     background: #FF1C1C;
     color: #fff;
     font-weight: 400;
     font-size: 0.9em;
     border-top: solid 1px #FF1C1C;
-    text-shadow: -1px -1px 0 #FF1C1C;
-    position: relative;
-    bottom: 0;
-}
-
-footer .container {
-    position: relative;
+    text-shadow: -1px -1px 0 #FF1C1C;  
 }
 
 footer .container div:first-child {
@@ -305,6 +306,24 @@ input[type='button'] {
     border-radius: 2px;
     cursor: pointer;
     font-weight: 500;
+}
+
+table {
+    margin: 50px auto;
+    width: 100%;
+}
+
+th {
+    text-align: left;
+    text-transform: uppercase;
+}
+
+th, td {
+    padding: 10px 0;
+    font-weight: 600;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 @media screen and (min-width: 992px) and (max-width: 1199px) {
