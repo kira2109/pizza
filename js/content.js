@@ -4,20 +4,29 @@ document.body.children[0].insertAdjacentHTML('afterEnd', '<main>');
 let main = document.body.children[1];
 main.classList.add('container');
 
-//switch options creation - table or list:
+let firstRowDiv = createDiv('firstRow');
+main.appendChild(firstRowDiv);
+
+//switch options creation - table/list/basket:
 let tableInput = createInput('radio');
-main.appendChild(tableInput);
+firstRowDiv.appendChild(tableInput);
 let tableId = 'table';
 tableInput.id = tableId;
 tableInput.checked = true;
 
 let listInput = createInput('radio');
-main.appendChild(listInput);
+firstRowDiv.appendChild(listInput);
 let listId = 'list';
 listInput.id = listId;
 
+let basketInput = createInput('radio');
+firstRowDiv.appendChild(basketInput);
+let basketId = 'basket';
+basketInput.id = basketId;
+
+
 let optionControls = createDiv('controls');
-main.appendChild(optionControls);
+firstRowDiv.appendChild(optionControls);
 
 let tableLabel = document.createElement('label');
 optionControls.appendChild(tableLabel).setAttribute('for', tableId);
@@ -30,6 +39,11 @@ optionControls.appendChild(listLabel).setAttribute('for', listId);
 let listLabel_name = document.createTextNode('Список');
 listLabel.appendChild(listLabel_name);
 
+let basketLabel = document.createElement('label');
+optionControls.appendChild(basketLabel).setAttribute('for', basketId);
+let basketLabel_name = document.createTextNode('Корзина');
+basketLabel.appendChild(basketLabel_name);
+
 let optionsDiv = createDiv('options');
 main.appendChild(optionsDiv);
 
@@ -40,20 +54,38 @@ let listOption = createDiv('list');
 optionsDiv.appendChild(listOption);
 listOption.hidden = true;
 
+let basketOption = createDiv('basket');
+optionsDiv.appendChild(basketOption);
+basketOption.hidden = true;
+
 tableInput.onclick = function () {
     tableInput.checked = true;
     listInput.checked = false;
+    basketInput.checked = false;
 
     tableOption.hidden = false;
     listOption.hidden = true;
+    basketOption.hidden = true;
 };
 
 listInput.onclick = function () {
     tableInput.checked = false;
     listInput.checked = true;
+    basketInput.checked = false;
 
     listOption.hidden = false;
     tableOption.hidden = true;
+    basketOption.hidden = true;
+};
+
+basketInput.onclick = function () {
+    tableInput.checked = false;
+    listInput.checked = false;
+    basketInput.checked = true;
+
+    listOption.hidden = true;
+    tableOption.hidden = true;
+    basketOption.hidden = false;
 };
 
 // table creation:
@@ -61,7 +93,7 @@ listInput.onclick = function () {
 let pizzaWrappers = [];
 
 for (let i = 0; i < pizzas.length; i++) {
-    pizzaWrappers[i] = { name: pizzas[i].name, wrapper: createPizzaDiv(pizzas[i]) };
+    pizzaWrappers[i] = { name: pizzas[i].name, wrapper: createPizzaDiv(pizzas[i], i) };
 }
 
 
@@ -73,7 +105,116 @@ for (let i = 0; i < pizzas.length; i++) {
     createPizzaLi(pizzas[i]);
 }
 
-function createPizzaDiv(pizza) {
+//basket content:
+
+let orderInfoDiv = createDiv('orderInfo');
+basketOption.appendChild(orderInfoDiv);
+
+let clearBasketInput = createInput('button');
+clearBasketInput.value = 'Очистить корзину';
+clearBasketInput.classList.add('clearBasket');
+basketOption.appendChild(clearBasketInput);
+
+
+basketInput.addEventListener('click', openbasket);
+clearBasketInput.addEventListener('click', function () {
+    localStorage.clear();
+    orderInfoDiv.innerHTML = 'Корзина очищена.';
+});
+
+
+
+function getbasketData() {
+    return JSON.parse(localStorage.getItem('basket'));
+}
+
+function setbasketData(obj) {
+    localStorage.setItem('basket', JSON.stringify(obj));
+}
+
+function addTobasket() {
+    this.disabled = true; // блокируем кнопку на время операции с корзиной
+    let basketData = getbasketData() || {},
+        parentBox = this.parentNode,
+        productId = this.getAttribute('data-id'),
+        productTitle = parentBox.querySelector('.name').innerHTML,
+        productPrice = parentBox.querySelector('.price').innerHTML;
+
+    if (basketData.hasOwnProperty(productId)) {
+        basketData[productId][2] += 1;
+    } else {
+        basketData[productId] = [productTitle, productPrice, 1];
+    }
+    if (!setbasketData(basketData)) { // Обновляем данные в LocalStorage
+        this.disabled = false; // разблокируем кнопку после обновления LS
+    }
+}
+
+function openbasket() {
+    let basketData = getbasketData(),
+        productTable = '';
+
+    if (basketData !== null) {
+        productTable = '<table class="shopping_list"><tr><th>Наименование</th><th>Цена</th><th>Кол-во</th></tr>';
+        for (let product in basketData) {
+            productTable += '<tr>';
+            for (let i = 0; i < basketData[product].length; i++) {
+                productTable += '<td>' + basketData[product][i] + '</td>';
+
+            }
+            productTable += '<td><input type = "button" value = "+" class = "addProduct" data-id="' + product + '"></td><td><input type = "button" value = "-" class = "removeProduct" data-id="' + product + '"></td>';
+            productTable += '</tr>';
+        }
+        productTable += '<tr><td>Итого:</td><td colspan = "4">' + getPriceOrder() + ' грн.</td></tr>';
+        productTable += '</table>';
+        orderInfoDiv.innerHTML = productTable;
+        let addbuttons = orderInfoDiv.querySelectorAll('.addProduct');
+        for (let i = 0; i < addbuttons.length; i++) {
+            addbuttons[i].addEventListener('click', addProduct);
+        }
+        let removebuttons = orderInfoDiv.querySelectorAll('.removeProduct');
+        for (let i = 0; i < removebuttons.length; i++) {
+            removebuttons[i].addEventListener('click', removeProduct);
+        }
+
+    } else {
+        orderInfoDiv.innerHTML = 'В корзине пусто!';
+    }
+}
+
+function addProduct() {
+    let basketData = getbasketData();
+    let productId = this.getAttribute('data-id');
+    basketData[productId][2] += 1;
+    setbasketData(basketData);
+    openbasket();
+}
+
+function removeProduct() {
+    let basketData = getbasketData();
+    let productId = this.getAttribute('data-id');
+    basketData[productId][2] -= 1;
+    if (basketData[productId][2] < 0) {
+        delete basketData[productId];
+    }
+    setbasketData(basketData);
+    openbasket();
+}
+
+function getPriceOrder() {
+    let basketData = getbasketData();
+    let sum = 0;
+
+    for (let product in basketData) {
+        let productPrice = basketData[product][1].split('<');
+        let pricePerQuantity = +productPrice[0] * basketData[product][2];
+        sum += pricePerQuantity;
+    }
+
+    return sum;
+}
+
+function createPizzaDiv(pizza, number) {
     let pizzaDiv = createDiv('pizza-layout');
     pizzaDiv.dataset.name = pizza.name;
     tableOption.appendChild(pizzaDiv);
@@ -100,7 +241,7 @@ function createPizzaDiv(pizza) {
         let labelIngredient = document.createElement('label');
         labelIngredient.setAttribute('name', pizza.ingredientsList[j]);
         labelIngredient.dataset.click = 1;
-        
+
         let ingredientsListContent = document.createTextNode(pizza.ingredientsList[j]);
         labelIngredient.appendChild(ingredientsListContent);
         ingredientWrapperDiv.appendChild(labelIngredient);
@@ -149,6 +290,15 @@ function createPizzaDiv(pizza) {
     weightUnitSpan.appendChild(weightUnitSpanContent);
     weightDiv.appendChild(weightUnitSpan);
 
+    let buyButton = createInput('button');
+    buyButton.value = 'В корзину';
+    buyButton.dataset.id = number;
+    buyButton.classList.add('tobasket');
+    descDiv.appendChild(buyButton);
+
+    buyButton.addEventListener('click', addTobasket);
+
+
     return pizzaDiv;
 }
 
@@ -181,7 +331,7 @@ function addIngredient(e) {
     updatePizza(ingredientName, pizzaName, clickCount, function (currentValue, ingredientValue) {
         return currentValue + ingredientValue;
     });
-    
+
 }
 
 function removeIngredient(e) {
@@ -207,7 +357,7 @@ function updatePizza(ingredientName, pizzaName, clickCount, changeFunc) {
     let foundIngredient = ingredientsData.find(ingredient => ingredient.ingredientName === ingredientName);
     let foundPizza = pizzaWrappers.find(pizza => pizza.name === pizzaName);
 
-    let targetSelector = 'label[name=' + ingredientName +']';
+    let targetSelector = 'label[name=' + ingredientName + ']';
     let targetIngredient = foundPizza.wrapper.querySelector(targetSelector);
     targetIngredient.dataset.click = clickCount;
 
