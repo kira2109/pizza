@@ -375,3 +375,8 @@ function updatePizza(ingredientName, pizzaName, clickCount, changeFunc) {
     let newPriceElement = document.createTextNode(newPriceValue);
     priceDiv.replaceChild(newPriceElement, priceDiv.firstChild);
 }
+
+$(".pizza_list>li:nth-child(2n + 1)").css("background-color", "green");
+$("input[type=button]").click(function () {
+    $(this).toggleClass( "green" );
+});

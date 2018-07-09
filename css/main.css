@@ -326,6 +326,10 @@ th, td {
     line-height: 1.4;
 }
 
+.green {
+    background: green!important;
+}
+
 @media screen and (min-width: 992px) and (max-width: 1199px) {
     .container {
         width: 970px;
